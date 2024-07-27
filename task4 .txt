@@ -1,0 +1,94 @@
+task4:
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+#define N 9
+
+// Fonction pour imprimer le tableau Sudoku
+void printGrid(int grid[N][N]) {
+    for (int row = 0; row < N; row++) {
+        for (int col = 0; col < N; col++) {
+            cout << grid[row][col] << " ";
+        }
+        cout << endl;
+    }
+}
+
+// Fonction pour vérifier si un numéro peut être placé à la position donnée
+bool isSafe(int grid[N][N], int row, int col, int num) {
+    // Vérifier si le numéro est déjà dans la ligne ou la colonne
+    for (int x = 0; x < N; x++) {
+        if (grid[row][x] == num || grid[x][col] == num) {
+            return false;
+        }
+    }
+
+    // Vérifier si le numéro est dans la sous-grille 3x3
+    int startRow = row - row % 3, startCol = col - col % 3;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (grid[i + startRow][j + startCol] == num) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+// Fonction récursive pour résoudre le Sudoku en utilisant le backtracking
+bool solveSudoku(int grid[N][N], int row, int col) {
+    // Si nous avons atteint la dernière cellule
+    if (row == N - 1 && col == N) {
+        return true;
+    }
+
+    // Passer à la ligne suivante si nous sommes à la fin de la ligne actuelle
+    if (col == N) {
+        row++;
+        col = 0;
+    }
+
+    // Si la cellule actuelle est déjà remplie, passer à la cellule suivante
+    if (grid[row][col] != 0) {
+        return solveSudoku(grid, row, col + 1);
+    }
+
+    for (int num = 1; num <= 9; num++) {
+        if (isSafe(grid, row, col, num)) {
+            grid[row][col] = num;
+
+            // Appel récursif pour placer le numéro suivant
+            if (solveSudoku(grid, row, col + 1)) {
+                return true;
+            }
+        }
+
+        // Si la solution ne fonctionne pas, backtrack (retour en arrière)
+        grid[row][col] = 0;
+    }
+    return false;
+}
+
+int main() {
+    int grid[N][N] = {
+        {5, 3, 0, 0, 7, 0, 0, 0, 0},
+        {6, 0, 0, 1, 9, 5, 0, 0, 0},
+        {0, 9, 8, 0, 0, 0, 0, 6, 0},
+        {8, 0, 0, 0, 6, 0, 0, 0, 3},
+        {4, 0, 0, 8, 0, 3, 0, 0, 1},
+        {7, 0, 0, 0, 2, 0, 0, 0, 6},
+        {0, 6, 0, 0, 0, 0, 2, 8, 0},
+        {0, 0, 0, 4, 1, 9, 0, 0, 5},
+        {0, 0, 0, 0, 8, 0, 0, 7, 9}
+    };
+
+    if (solveSudoku(grid, 0, 0)) {
+        printGrid(grid);
+    } else {
+        cout << "No solution exists" << endl;
+    }
+
+    return 0;
+}
